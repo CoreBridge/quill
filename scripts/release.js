@@ -68,7 +68,7 @@ async function main() {
     }
 
     const match = inputVersion.match(
-      /^(?:[0-9]+\.){2}(?:[0-9]+)(?:-(dev|alpha|beta|rc)\.[0-9]+)?$/
+      /^(?:[0-9]+\.){2}(?:[0-9]+)(?:-(dev|alpha|beta|rc|corebridge)\.[0-9]+)?$/
     );
     if (!match) {
       exitWithError(`Invalid version: ${inputVersion}`);

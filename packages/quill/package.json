@@ -1,7 +1,7 @@
 {
-  "name": "quill",
-  "version": "2.0.3",
-  "description": "Your powerful, rich text editor",
+  "name": "@corebridge/quill",
+  "version": "2.0.4-corebridge.1",
+  "description": "CoreBridge security fork of Quill 2.0.3",
   "author": "Jason Chen <jhchen7@gmail.com>",
   "homepage": "https://quilljs.com",
   "main": "quill.js",
@@ -62,7 +62,7 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/slab/quill.git",
+    "url": "git+https://github.com/CoreBridge/quill.git",
     "directory": "packages/quill"
   },
   "bugs": {

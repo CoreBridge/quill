@@ -1,3 +1,15 @@
+# v2.0.4-corebridge.1 (2026-09-18)
+
+CoreBridge security fork of Quill 2.0.3. APIs, Delta, and package layout are unchanged from 2.0.3.
+
+## Security
+
+- Escape HTML-export of formula, video, image, and link content (GHSA-v3m3-f69x-jf25 / CVE-2025-15056)
+- Reconstruct `getSemanticHTML()` tags without `outerHTML` splitting so event handlers and `javascript:` URLs cannot leak into exported markup
+- Escape syntax-highlight `data-language` values and sanitize Snow tooltip link hrefs
+- Image export uses `getAttribute` for width/height so DOM properties cannot inject attributes
+- Link export preserves partial ranges instead of dumping the full anchor `innerHTML`
+
 # v2.0.2 (2024-05-13)
 
 <!-- Release notes generated using configuration in .github/release.yml at v2.0.2 -->

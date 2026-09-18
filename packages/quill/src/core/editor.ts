@@ -399,15 +399,108 @@ function convertHTML(
     if (isRoot || blot.statics.blotName === 'list') {
       return parts.join('');
     }
-    const { outerHTML, innerHTML } = blot.domNode as Element;
-    const [start, end] = outerHTML.split(`>${innerHTML}<`);
-    // TODO cleanup
-    if (start === '<table') {
-      return `<table style="border: 1px solid #000;">${parts.join('')}<${end}`;
+    const element = blot.domNode as Element;
+    const tagName = element.tagName.toLowerCase();
+    if (tagName === 'table' && element.attributes.length === 0) {
+      return `<table style="border: 1px solid #000;">${parts.join('')}</table>`;
     }
-    return `${start}>${parts.join('')}<${end}`;
+    const attrString = serializeAttributes(element);
+    const open = attrString ? `<${tagName} ${attrString}>` : `<${tagName}>`;
+    return `${open}${parts.join('')}</${tagName}>`;
   }
-  return blot.domNode instanceof Element ? blot.domNode.outerHTML : '';
+  return blot.domNode instanceof Element
+    ? serializeElementSafely(blot.domNode)
+    : '';
+}
+
+const VOID_ELEMENTS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]);
+
+const ATTR_NAME_RE = /^[a-zA-Z][a-zA-Z0-9:_-]*$/;
+const EVENT_ATTR_RE = /^on/i;
+const DANGEROUS_ATTRS = new Set(['srcdoc', 'formaction']);
+
+function serializeAttributes(element: Element): string {
+  return Array.from(element.attributes)
+    .reduce<string[]>((attrs, attr) => {
+      const name = attr.name;
+      if (!ATTR_NAME_RE.test(name) || EVENT_ATTR_RE.test(name)) {
+        return attrs;
+      }
+      const lower = name.toLowerCase();
+      if (DANGEROUS_ATTRS.has(lower)) {
+        return attrs;
+      }
+      let { value } = attr;
+      if (lower === 'href' || lower === 'src' || lower === 'xlink:href') {
+        const safe = sanitizeExportedUrl(value, lower === 'src');
+        if (safe == null) {
+          return attrs;
+        }
+        value = safe;
+      }
+      attrs.push(`${name}="${escapeText(value)}"`);
+      return attrs;
+    }, [])
+    .join(' ');
+}
+
+function sanitizeExportedUrl(url: string, isSrc: boolean): string | null {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  const colon = anchor.href.indexOf(':');
+  if (colon === -1) {
+    return url;
+  }
+  const protocol = anchor.href.slice(0, colon).toLowerCase();
+  if (protocol === 'javascript' || protocol === 'vbscript') {
+    return isSrc ? null : 'about:blank';
+  }
+  if (protocol === 'data') {
+    if (isSrc && /^data:image\/[a-z0-9.+-]+;base64,/i.test(url.trim())) {
+      return url;
+    }
+    return isSrc ? null : 'about:blank';
+  }
+  return url;
+}
+
+function serializeElementSafely(element: Element): string {
+  const tagName = element.tagName.toLowerCase();
+  if (!/^[a-z][a-z0-9-]*$/.test(tagName)) {
+    return '';
+  }
+  const attrString = serializeAttributes(element);
+  const open = attrString ? `<${tagName} ${attrString}>` : `<${tagName}>`;
+  if (VOID_ELEMENTS.has(tagName)) {
+    return open;
+  }
+  const inner = Array.from(element.childNodes)
+    .map((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return escapeText(node.textContent ?? '');
+      }
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        return serializeElementSafely(node as Element);
+      }
+      return '';
+    })
+    .join('');
+  return `${open}${inner}</${tagName}>`;
 }
 
 function combineFormats(
@@ -479,4 +572,5 @@ function splitOpLines(ops: Op[]) {
   return split;
 }
 
+export { convertHTML };
 export default Editor;

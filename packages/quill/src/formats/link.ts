@@ -1,4 +1,6 @@
 import Inline from '../blots/inline.js';
+import { escapeText } from '../blots/text.js';
+import { convertHTML } from '../core/editor.js';
 
 class Link extends Inline {
   static blotName = 'link';
@@ -29,6 +31,24 @@ class Link extends Inline {
       // @ts-expect-error
       this.domNode.setAttribute('href', this.constructor.sanitize(value));
     }
+  }
+
+  html(index: number, length: number) {
+    const href = Link.sanitize(this.domNode.getAttribute('href') || '');
+    const rel = this.domNode.getAttribute('rel');
+    const target = this.domNode.getAttribute('target');
+    const attrs = [`href="${escapeText(href)}"`];
+    if (rel) {
+      attrs.push(`rel="${escapeText(rel)}"`);
+    }
+    if (target) {
+      attrs.push(`target="${escapeText(target)}"`);
+    }
+    const parts: string[] = [];
+    this.children.forEachAt(index, length, (child, offset, childLength) => {
+      parts.push(convertHTML(child, offset, childLength));
+    });
+    return `<a ${attrs.join(' ')}>${parts.join('')}</a>`;
   }
 }
 

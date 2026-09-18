@@ -1,6 +1,6 @@
 {
   "name": "quill-monorepo",
-  "version": "2.0.3",
+  "version": "2.0.4-corebridge.1",
   "description": "Quill development environment",
   "private": true,
   "author": "Jason Chen <jhchen7@gmail.com>",
@@ -17,17 +17,17 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/slab/quill.git"
+    "url": "git+https://github.com/CoreBridge/quill.git"
   },
   "bugs": {
     "url": "https://github.com/slab/quill/issues"
   },
   "scripts": {
     "build": "run-p build:*",
-    "build:quill": "npm run build -w quill",
+    "build:quill": "npm run build -w @corebridge/quill",
     "build:website": "npm run build -w website",
     "start": "run-p start:*",
-    "start:quill": "npm start -w quill",
+    "start:quill": "npm start -w @corebridge/quill",
     "start:website": "NEXT_PUBLIC_LOCAL_QUILL=true npm start -w website",
     "lint": "npm run lint -ws"
   },
