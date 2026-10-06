@@ -7,5 +7,9 @@
 
 node_modules
 
+packages/*/dist
+*.tgz
+
 test-results/
 playwright-report/
+.npmrc
