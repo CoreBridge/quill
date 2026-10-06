@@ -4,6 +4,7 @@
 !.npmignore
 !.gitignore
 !.github
+!.npmrc
 
 node_modules
 
@@ -12,4 +13,4 @@ packages/*/dist
 
 test-results/
 playwright-report/
-.npmrc
+
